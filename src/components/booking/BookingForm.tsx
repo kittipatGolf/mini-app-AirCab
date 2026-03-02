@@ -198,7 +198,7 @@ export function BookingForm() {
                           updateField("airport", item);
                           setShowAirportSuggestions(false);
                         }}
-                        className="block w-full rounded-md px-2 py-1 text-left text-xs text-slate-700 hover:bg-slate-100"
+                        className="block w-full rounded-md px-3 py-2 text-left text-base text-slate-700 hover:bg-slate-100"
                       >
                         {item}
                       </button>
@@ -235,7 +235,7 @@ export function BookingForm() {
                           updateField("airline", item);
                           setShowAirlineSuggestions(false);
                         }}
-                        className="block w-full rounded-md px-2 py-1 text-left text-xs text-slate-700 hover:bg-slate-100"
+                        className="block w-full rounded-md px-3 py-2 text-left text-base text-slate-700 hover:bg-slate-100"
                       >
                         {item}
                       </button>
