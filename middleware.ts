@@ -13,14 +13,18 @@ export function middleware(request: NextRequest) {
 
   const isLoginPath = pathname.startsWith("/login");
   const isAdminPath = pathname.startsWith("/admin");
-  const isUserPath = pathname === "/" || pathname.startsWith("/profile");
+  const isUserPath = pathname.startsWith("/booking") || pathname.startsWith("/profile");
+
+  if (pathname === "/") {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
 
   if (isLoginPath) {
     if (role === "admin") {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
     if (role === "user") {
-      return NextResponse.redirect(new URL("/", request.url));
+      return NextResponse.redirect(new URL("/booking", request.url));
     }
     return NextResponse.next();
   }

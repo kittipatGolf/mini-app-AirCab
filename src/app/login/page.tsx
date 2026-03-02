@@ -31,7 +31,7 @@ export default function LoginPage() {
     }
 
     document.cookie = `${AUTH_COOKIE_NAME}=${account.role}; path=/; max-age=86400; samesite=lax`;
-    router.push(account.role === "admin" ? "/admin" : "/");
+    router.push(account.role === "admin" ? "/admin" : "/booking");
     router.refresh();
   };
 

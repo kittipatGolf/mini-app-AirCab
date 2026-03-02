@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { LogoutButton } from "../auth/LogoutButton";
 
 type AppNavbarProps = { profileName: string };
 
 const pages = [
-  { href: "/", label: "Booking" },
+  { href: "/booking", label: "Booking" },
   { href: "/profile", label: "User Profile" },
 ];
 
@@ -17,6 +18,20 @@ function getInitial(name: string) {
 
 export function AppNavbar({ profileName }: AppNavbarProps) {
   const pathname = usePathname();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!profileMenuRef.current) return;
+      if (!profileMenuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <header className="sticky top-0 z-30 w-full border-b border-slate-200 bg-white/95 px-3 py-3 backdrop-blur sm:mx-auto sm:max-w-6xl sm:rounded-2xl sm:border sm:px-4">
@@ -28,6 +43,7 @@ export function AppNavbar({ profileName }: AppNavbarProps) {
               <Link
                 key={page.href}
                 href={page.href}
+                onClick={() => setIsMenuOpen(false)}
                 className={`whitespace-nowrap rounded-lg px-4 py-2 text-base font-medium transition ${
                   isActive
                     ? "bg-sky-600 text-white"
@@ -40,17 +56,29 @@ export function AppNavbar({ profileName }: AppNavbarProps) {
           })}
         </nav>
 
-        <div className="flex shrink-0 items-center gap-2">
-          <LogoutButton className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-100" />
-          <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-2 py-1.5">
+        <div className="relative shrink-0" ref={profileMenuRef}>
+          <button
+            type="button"
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-2 py-1.5"
+          >
             <div className="grid h-8 w-8 place-items-center rounded-full bg-slate-900 text-xs font-semibold text-white">
               {getInitial(profileName)}
             </div>
-            <div className="hidden sm:block">
+            <div className="hidden sm:block text-left">
               <p className="text-xs text-slate-500">Profile</p>
               <p className="text-base font-medium text-slate-900">{profileName}</p>
             </div>
-          </div>
+          </button>
+
+          {isMenuOpen ? (
+            <div className="absolute right-0 mt-2 w-36 rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
+              <LogoutButton
+                className="block w-full rounded-lg px-3 py-2 text-left text-base font-medium text-slate-700 hover:bg-slate-100"
+                label="Logout"
+              />
+            </div>
+          ) : null}
         </div>
       </div>
     </header>
