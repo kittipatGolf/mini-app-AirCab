@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { fetchAdminBookingById } from "../../services/admin-booking.service";
+import { LogoutButton } from "../auth/LogoutButton";
 import { AdminBookingContact, AdminBookingItem } from "./types";
 
 type AdminBookingDetailProps = {
@@ -96,12 +97,15 @@ export function AdminBookingDetail({ bookingId }: AdminBookingDetailProps) {
           <h1 className="text-xl font-semibold text-slate-900">Booking Detail</h1>
           <p className="text-base text-slate-600">ID: {item.id}</p>
         </div>
-        <Link
-          href="/admin"
-          className="rounded-lg bg-slate-100 px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-200"
-        >
-          Back to list
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin"
+            className="rounded-lg bg-slate-100 px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-200"
+          >
+            Back to list
+          </Link>
+          <LogoutButton className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-100" />
+        </div>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
