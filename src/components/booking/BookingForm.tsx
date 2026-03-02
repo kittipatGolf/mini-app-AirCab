@@ -1,9 +1,12 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { FormSection } from "./FormSection";
 import { StepGuide } from "./StepGuide";
 import {
+  BOOKING_HISTORY_STORAGE_KEY,
+  BookingHistoryItem,
   BookingFormData,
   ContactMethod,
   contactMethodLabels,
@@ -37,7 +40,20 @@ function findSuggestions(source: string[], keyword: string) {
     .slice(0, 8);
 }
 
+function formatDateTime(date: string, time: string) {
+  return [date, time].filter(Boolean).join(" ").trim();
+}
+
+function generateBookingId(now: Date) {
+  const yy = String(now.getFullYear()).slice(-2);
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  const suffix = String(now.getTime()).slice(-4);
+  return `BK-${yy}${mm}${dd}${suffix}`;
+}
+
 export function BookingForm() {
+  const router = useRouter();
   const [formData, setFormData] = useState<BookingFormData>(initialData);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [airports, setAirports] = useState<string[]>([]);
@@ -145,6 +161,48 @@ export function BookingForm() {
     event.preventDefault();
     if (!canSubmit) return;
     setIsSubmitted(true);
+  };
+
+  const handleConfirmBooking = () => {
+    const now = new Date();
+    const contacts = contactMethods
+      .filter(
+        (method) =>
+          formData.contacts[method].enabled &&
+          Boolean(formData.contacts[method].value.trim())
+      )
+      .map((method) => ({
+        method: contactMethodLabels[method],
+        value: formData.contacts[method].value.trim(),
+      }));
+
+    const newItem: BookingHistoryItem = {
+      id: generateBookingId(now),
+      airport: formData.airport,
+      destination: formData.destination,
+      date: formatDateTime(formData.landingDate, formData.landingTime),
+      status: "Pending",
+      flightNumber: formData.flightNumber,
+      airline: formData.airline,
+      passengers: formData.passengers,
+      landingDate: formData.landingDate,
+      landingTime: formData.landingTime,
+      contacts,
+    };
+
+    try {
+      const raw = window.localStorage.getItem(BOOKING_HISTORY_STORAGE_KEY);
+      const existing = raw ? (JSON.parse(raw) as BookingHistoryItem[]) : [];
+      const safeExisting = Array.isArray(existing) ? existing : [];
+      window.localStorage.setItem(
+        BOOKING_HISTORY_STORAGE_KEY,
+        JSON.stringify([newItem, ...safeExisting])
+      );
+    } catch {
+      // Ignore storage failures and continue navigation.
+    }
+
+    router.push("/profile?tab=history");
   };
 
   return (
@@ -289,13 +347,15 @@ export function BookingForm() {
               <span className="text-base font-medium text-slate-700">ผู้โดยสาร (Passengers)</span>
               <input
                 required
-                min={1}
-                max={12}
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={formData.passengers}
-                onChange={(event) =>
-                  updateField("passengers", Number(event.target.value || 1))
-                }
+                onChange={(event) => {
+                  const digitsOnly = event.target.value.replace(/\D/g, "");
+                  updateField("passengers", Number(digitsOnly || 0));
+                }}
+                placeholder="กรอกจำนวนผู้โดยสาร"
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 outline-none ring-sky-200 transition focus:border-sky-500 focus:ring-4 md:max-w-[220px]"
               />
             </label>
@@ -434,13 +494,22 @@ export function BookingForm() {
               </div>
             </dl>
 
-            <button
-              type="button"
-              onClick={() => setIsSubmitted(false)}
-              className="mt-4 w-full rounded-xl bg-slate-900 px-4 py-2.5 text-base font-semibold text-white transition hover:brightness-110"
-            >
-              ปิด
-            </button>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={handleConfirmBooking}
+                className="rounded-xl bg-gradient-to-r from-sky-600 to-cyan-600 px-4 py-2.5 text-base font-semibold text-white transition hover:brightness-110"
+              >
+                {"\u0E22\u0E37\u0E19\u0E22\u0E31\u0E19\u0E08\u0E2D\u0E07"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsSubmitted(false)}
+                className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-base font-semibold text-slate-700 transition hover:bg-slate-100"
+              >
+                {"\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01"}
+              </button>
+            </div>
           </div>
         </div>
       ) : null}

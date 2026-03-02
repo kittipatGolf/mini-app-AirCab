@@ -2,7 +2,11 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AUTH_COOKIE_NAME, MOCK_CREDENTIALS } from "../../lib/mock-auth";
+import {
+  AUTH_COOKIE_NAME,
+  AUTH_PROFILE_NAME_COOKIE,
+  MOCK_CREDENTIALS,
+} from "../../lib/mock-auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -31,6 +35,7 @@ export default function LoginPage() {
     }
 
     document.cookie = `${AUTH_COOKIE_NAME}=${account.role}; path=/; max-age=86400; samesite=lax`;
+    document.cookie = `${AUTH_PROFILE_NAME_COOKIE}=${encodeURIComponent(account.username)}; path=/; max-age=86400; samesite=lax`;
     router.push(account.role === "admin" ? "/admin" : "/booking");
     router.refresh();
   };
