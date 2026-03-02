@@ -1,0 +1,106 @@
+﻿{
+  "items": [
+    {
+      "id": "BK-20260302-001",
+      "customerName": "Kitti",
+      "airport": "ท่าอากาศยานสุวรรณภูมิ (Suvarnabhumi Airport - BKK)",
+      "airline": "การบินไทย (Thai Airways)",
+      "flightNumber": "TG102",
+      "landingDateTime": "2026-03-02 19:40",
+      "passengers": 2,
+      "destination": "สุขุมวิท 24 กรุงเทพฯ",
+      "contacts": [
+        { "method": "whatsapp", "value": "66812345678" },
+        { "method": "line", "value": "kitti.line" },
+        { "method": "email", "value": "kitti@example.com" }
+      ],
+      "note": "มีเด็ก 1 คน",
+      "bookingStatus": "pending",
+      "paymentStatus": "unpaid",
+      "createdAt": "2026-03-02T12:30:00+07:00"
+    },
+    {
+      "id": "BK-20260301-014",
+      "customerName": "Natt",
+      "airport": "ท่าอากาศยานดอนเมือง (Don Mueang Airport - DMK)",
+      "airline": "ไทยแอร์เอเชีย (Thai AirAsia)",
+      "flightNumber": "FD356",
+      "landingDateTime": "2026-03-01 08:10",
+      "passengers": 1,
+      "destination": "พระราม 9 กรุงเทพฯ",
+      "contacts": [
+        { "method": "wechat", "value": "natt_wechat" },
+        { "method": "email", "value": "natt@example.com" }
+      ],
+      "bookingStatus": "assigned",
+      "paymentStatus": "unpaid",
+      "createdAt": "2026-03-01T06:00:00+07:00"
+    },
+    {
+      "id": "BK-20260227-021",
+      "customerName": "Mali",
+      "airport": "ท่าอากาศยานเชียงใหม่ (Chiang Mai Airport - CNX)",
+      "airline": "บางกอกแอร์เวย์ส (Bangkok Airways)",
+      "flightNumber": "PG220",
+      "landingDateTime": "2026-02-27 21:25",
+      "passengers": 3,
+      "destination": "นิมมานเหมินทร์ เชียงใหม่",
+      "contacts": [
+        { "method": "line", "value": "mali.trip" }
+      ],
+      "bookingStatus": "arrived",
+      "paymentStatus": "paid",
+      "createdAt": "2026-02-27T18:45:00+07:00"
+    },
+    {
+      "id": "BK-20260226-034",
+      "customerName": "Ploy",
+      "airport": "ท่าอากาศยานภูเก็ต (Phuket Airport - HKT)",
+      "airline": "Thai Vietjet Air",
+      "flightNumber": "VZ311",
+      "landingDateTime": "2026-02-26 15:05",
+      "passengers": 2,
+      "destination": "Patong Beach, Phuket",
+      "contacts": [
+        { "method": "whatsapp", "value": "66911112222" },
+        { "method": "email", "value": "ploy@example.com" }
+      ],
+      "bookingStatus": "assigned",
+      "paymentStatus": "unpaid",
+      "createdAt": "2026-02-26T11:20:00+07:00"
+    },
+    {
+      "id": "BK-20260225-049",
+      "customerName": "Beam",
+      "airport": "ท่าอากาศยานอู่ตะเภา (U-Tapao Airport - UTP)",
+      "airline": "Bangkok Airways",
+      "flightNumber": "PG901",
+      "landingDateTime": "2026-02-25 10:30",
+      "passengers": 4,
+      "destination": "Jomtien, Pattaya",
+      "contacts": [
+        { "method": "line", "value": "beam.travel" }
+      ],
+      "bookingStatus": "pending",
+      "paymentStatus": "unpaid",
+      "createdAt": "2026-02-25T08:10:00+07:00"
+    },
+    {
+      "id": "BK-20260224-052",
+      "customerName": "Aom",
+      "airport": "ท่าอากาศยานหาดใหญ่ (Hat Yai Airport - HDY)",
+      "airline": "Nok Air",
+      "flightNumber": "DD502",
+      "landingDateTime": "2026-02-24 20:40",
+      "passengers": 1,
+      "destination": "Hat Yai Downtown",
+      "contacts": [
+        { "method": "wechat", "value": "aom_88" },
+        { "method": "email", "value": "aom@example.com" }
+      ],
+      "bookingStatus": "arrived",
+      "paymentStatus": "paid",
+      "createdAt": "2026-02-24T17:35:00+07:00"
+    }
+  ]
+}
