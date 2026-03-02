@@ -32,8 +32,8 @@ function statusClass(status: HistoryItem["status"]) {
 export function BookingHistory() {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-      <h2 className="text-lg font-semibold text-slate-900">User Profile</h2>
-      <p className="mt-1 text-base text-slate-600">Booking history for this profile</p>
+      <h2 className="text-lg font-semibold text-slate-900">Booking History</h2>
+      <p className="mt-1 text-base text-slate-600">รายการจองย้อนหลังของผู้ใช้งาน</p>
 
       <div className="mt-4 space-y-3">
         {mockHistory.map((item) => (
