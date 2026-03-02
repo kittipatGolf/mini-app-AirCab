@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LogoutButton } from "../auth/LogoutButton";
 
 type AppNavbarProps = { profileName: string };
 
@@ -18,7 +19,7 @@ export function AppNavbar({ profileName }: AppNavbarProps) {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-30 rounded-2xl border border-slate-200 bg-white/95 px-3 py-3 backdrop-blur sm:px-4">
+    <header className="sticky top-0 z-30 w-full border-b border-slate-200 bg-white/95 px-3 py-3 backdrop-blur sm:mx-auto sm:max-w-6xl sm:rounded-2xl sm:border sm:px-4">
       <div className="flex items-center justify-between gap-3">
         <nav className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto pr-1">
           {pages.map((page) => {
@@ -39,7 +40,8 @@ export function AppNavbar({ profileName }: AppNavbarProps) {
           })}
         </nav>
 
-        <div className="shrink-0">
+        <div className="flex shrink-0 items-center gap-2">
+          <LogoutButton className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-100" />
           <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-2 py-1.5">
             <div className="grid h-8 w-8 place-items-center rounded-full bg-slate-900 text-xs font-semibold text-white">
               {getInitial(profileName)}

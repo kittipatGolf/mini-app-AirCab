@@ -3,9 +3,9 @@ import { AppNavbar } from "../components/navigation/AppNavbar";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
-      <div className="mx-auto w-full max-w-6xl space-y-4">
-        <AppNavbar profileName="Kitti" />
+    <main className="min-h-screen bg-slate-100 pb-4 sm:px-6 sm:py-6 lg:px-8">
+      <AppNavbar profileName="Kitti" />
+      <div className="mx-auto mt-4 w-full max-w-6xl px-4 sm:mt-0 sm:px-0">
         <BookingForm />
       </div>
     </main>
