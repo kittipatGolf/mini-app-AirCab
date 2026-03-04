@@ -2,7 +2,11 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AUTH_COOKIE_NAME, MOCK_CREDENTIALS } from "../../lib/mock-auth";
+import {
+  AUTH_COOKIE_NAME,
+  AUTH_PROFILE_NAME_COOKIE,
+  MOCK_CREDENTIALS,
+} from "../../lib/mock-auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,8 +16,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
 
   const hints = useMemo(
-    () =>
-      MOCK_CREDENTIALS.map((item) => `${item.label}: ${item.username} / ${item.password}`),
+    () => MOCK_CREDENTIALS.map((item) => `${item.label}: ${item.username} / ${item.password}`),
     []
   );
 
@@ -22,27 +25,33 @@ export default function LoginPage() {
     setError("");
 
     const account = MOCK_CREDENTIALS.find(
-      (item) => item.username === username.trim() && item.password === password
+      (item) =>
+        item.role === "admin" &&
+        item.username === username.trim() &&
+        item.password === password
     );
 
     if (!account) {
-      setError("Username หรือ Password ไม่ถูกต้อง");
+      setError("Admin username or password is incorrect.");
       return;
     }
 
-    document.cookie = `${AUTH_COOKIE_NAME}=${account.role}; path=/; max-age=86400; samesite=lax`;
-    router.push(account.role === "admin" ? "/admin" : "/");
+    document.cookie = `${AUTH_COOKIE_NAME}=admin; path=/; max-age=86400; samesite=lax`;
+    document.cookie = `${AUTH_PROFILE_NAME_COOKIE}=${encodeURIComponent(account.username)}; path=/; max-age=86400; samesite=lax`;
+    router.push("/admin");
     router.refresh();
   };
 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <h1 className="text-2xl font-semibold text-slate-900">Login</h1>
-        <p className="mt-1 text-base text-slate-600">เข้าสู่ระบบเพื่อเข้าใช้งาน User หรือ Admin</p>
+        <h1 className="text-2xl font-semibold text-slate-900">Admin Login</h1>
+        <p className="mt-1 text-base text-slate-600">
+          Customer flow does not require login. This page is for admin only.
+        </p>
 
         <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
-          <p className="text-base font-medium text-slate-800">Mock Credentials</p>
+          <p className="text-base font-medium text-slate-800">Mock Admin Credential</p>
           <ul className="mt-1 space-y-1 text-base text-slate-700">
             {hints.map((item) => (
               <li key={item}>{item}</li>
@@ -89,3 +98,4 @@ export default function LoginPage() {
     </main>
   );
 }
+
