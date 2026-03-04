@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { FormSection } from "./FormSection";
 import { StepGuide } from "./StepGuide";
 import {
@@ -14,6 +13,12 @@ import {
 import { fetchAirlines, fetchAirports } from "../../services/flight-options.service";
 
 const contactMethods: ContactMethod[] = ["whatsapp", "wechat", "line", "email"];
+const contactMethodHints: Record<ContactMethod, string> = {
+  whatsapp: "Best for quick chat and live updates",
+  wechat: "Recommended for WeChat users",
+  line: "Popular for local communication",
+  email: "Best for booking confirmation",
+};
 
 const initialData: BookingFormData = {
   airport: "",
@@ -53,9 +58,10 @@ function generateBookingId(now: Date) {
 }
 
 export function BookingForm() {
-  const router = useRouter();
   const [formData, setFormData] = useState<BookingFormData>(initialData);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [confirmedBookingId, setConfirmedBookingId] = useState("");
   const [airports, setAirports] = useState<string[]>([]);
   const [airlines, setAirlines] = useState<string[]>([]);
   const [isLoadingLookup, setIsLoadingLookup] = useState(true);
@@ -202,7 +208,9 @@ export function BookingForm() {
       // Ignore storage failures and continue navigation.
     }
 
-    router.push("/profile?tab=history");
+    setConfirmedBookingId(newItem.id);
+    setIsSubmitted(false);
+    setIsSuccessModalOpen(true);
   };
 
   return (
@@ -379,26 +387,44 @@ export function BookingForm() {
             title="5) ช่องทางติดต่อ (Contact)"
             description="เปิดได้หลายช่องทาง และกรอกข้อมูลติดต่อของแต่ละช่องทาง"
           >
-            <div className="space-y-2">
+            <div className="space-y-3">
               {contactMethods.map((method) => {
                 const enabled = formData.contacts[method].enabled;
                 return (
-                  <div key={method} className="space-y-2 rounded-lg">
+                  <div
+                    key={method}
+                    className={`rounded-xl border p-2 transition ${
+                      enabled
+                        ? "border-sky-300 bg-sky-50/50"
+                        : "border-slate-200 bg-slate-50/50"
+                    }`}
+                  >
                     <button
                       type="button"
                       onClick={() => toggleContact(method)}
-                      className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-base font-medium transition ${
+                      className={`flex w-full items-center justify-between rounded-lg border px-3 py-2.5 text-base transition ${
                         enabled
                           ? "border-sky-500 bg-sky-100 text-sky-900"
                           : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"
                       }`}
                     >
-                      <span>{contactMethodLabels[method]}</span>
-                      <span>{enabled ? "ON" : "OFF"}</span>
+                      <div className="text-left">
+                        <p className="text-base font-semibold">{contactMethodLabels[method]}</p>
+                        <p className="text-xs text-slate-500">{contactMethodHints[method]}</p>
+                      </div>
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          enabled
+                            ? "bg-sky-600 text-white"
+                            : "bg-slate-200 text-slate-600"
+                        }`}
+                      >
+                        {enabled ? "ON" : "OFF"}
+                      </span>
                     </button>
 
                     {enabled ? (
-                      <div>
+                      <div className="mt-2">
                         <input
                           type={method === "email" ? "email" : "text"}
                           value={formData.contacts[method].value}
@@ -508,6 +534,36 @@ export function BookingForm() {
                 className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-base font-semibold text-slate-700 transition hover:bg-slate-100"
               >
                 {"\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {isSuccessModalOpen ? (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/55 p-4">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
+            <h2 className="text-xl font-semibold text-slate-900">Booking Confirmed</h2>
+            <p className="mt-2 text-base text-slate-600">
+              Your booking has been submitted successfully.
+            </p>
+            <p className="mt-1 text-sm font-medium text-amber-700">
+              Please capture this screen and save your booking reference for tracking.
+            </p>
+            <p className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-base text-emerald-800">
+              Reference: <span className="font-semibold">{confirmedBookingId}</span>
+            </p>
+
+            <div className="mt-4 grid gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSuccessModalOpen(false);
+                  setFormData(initialData);
+                }}
+                className="w-full rounded-xl bg-slate-900 px-4 py-2.5 text-base font-semibold text-white transition hover:brightness-110"
+              >
+                Close
               </button>
             </div>
           </div>
