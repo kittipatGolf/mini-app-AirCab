@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { LogoutButton } from "../auth/LogoutButton";
 
 type AdminNavbarProps = {
@@ -15,6 +16,16 @@ function getInitial(name: string) {
 export function AdminNavbar({ profileName = "Admin" }: AdminNavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname();
+
+  const bookingClass =
+    pathname === "/admin"
+      ? "rounded-xl bg-sky-600 px-3 py-2 text-center text-base font-medium text-white transition hover:brightness-110"
+      : "rounded-xl bg-slate-100 px-3 py-2 text-center text-base font-medium text-slate-700 transition hover:bg-slate-200";
+  const historyClass =
+    pathname === "/admin/history"
+      ? "rounded-xl bg-sky-600 px-3 py-2 text-center text-base font-medium text-white transition hover:brightness-110"
+      : "rounded-xl bg-slate-100 px-3 py-2 text-center text-base font-medium text-slate-700 transition hover:bg-slate-200";
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -35,9 +46,16 @@ export function AdminNavbar({ profileName = "Admin" }: AdminNavbarProps) {
           <Link
             href="/admin"
             onClick={() => setIsMenuOpen(false)}
-            className="rounded-xl bg-sky-600 px-3 py-2 text-center text-base font-medium text-white transition hover:brightness-110"
+            className={bookingClass}
           >
             Booking List
+          </Link>
+          <Link
+            href="/admin/history"
+            onClick={() => setIsMenuOpen(false)}
+            className={historyClass}
+          >
+            History
           </Link>
         </div>
 

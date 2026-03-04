@@ -7,8 +7,8 @@ import { AdminBookingContact, AdminBookingItem } from "./types";
 import {
   AdminOrderProgress,
   getAdminOrderProgress,
-  markOrderPaymentPaid,
 } from "./storage";
+import { AdminOrderStatusControl } from "./AdminOrderStatusControl";
 
 type AdminBookingDetailProps = {
   bookingId: string;
@@ -89,8 +89,6 @@ export function AdminBookingDetail({ bookingId }: AdminBookingDetailProps) {
   }
 
   const resolvedPaymentStatus = progress?.paymentStatus ?? item.paymentStatus;
-  const canConfirmPayment =
-    Boolean(progress) && Boolean(receiptFile) && resolvedPaymentStatus !== "paid";
 
   return (
     <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
@@ -186,9 +184,9 @@ export function AdminBookingDetail({ bookingId }: AdminBookingDetailProps) {
       </div>
 
       <div className="rounded-xl border border-slate-200 p-3">
-        <h2 className="text-lg font-semibold text-slate-900">Confirm Payment With Image</h2>
+        <h2 className="text-lg font-semibold text-slate-900">Upload Payment Slip</h2>
         <p className="mt-1 text-sm text-slate-600">
-          Upload payment slip after completing this accepted order.
+          Complete Job will be enabled only after a payment image is uploaded.
         </p>
 
         <input
@@ -197,22 +195,19 @@ export function AdminBookingDetail({ bookingId }: AdminBookingDetailProps) {
           onChange={(event) => setReceiptFile(event.target.files?.[0] ?? null)}
           className="mt-2 block w-full text-sm text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-900 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:brightness-110"
         />
-
-        <div className="mt-3">
-          <button
-            type="button"
-            disabled={!canConfirmPayment}
-            onClick={() => {
-              const next = markOrderPaymentPaid(item.id);
-              setProgress(next[item.id] ?? null);
-              setReceiptFile(null);
-            }}
-            className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Confirm Payment
-          </button>
-        </div>
       </div>
+
+      <AdminOrderStatusControl
+        bookingId={item.id}
+        isAccepted={Boolean(progress)}
+        hasPaymentUpload={Boolean(receiptFile)}
+        onProgressChange={(nextProgress) => {
+          setProgress(nextProgress);
+          if (nextProgress) {
+            setReceiptFile(null);
+          }
+        }}
+      />
     </section>
   );
 }
