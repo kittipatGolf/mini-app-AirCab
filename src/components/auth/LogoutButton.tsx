@@ -20,7 +20,7 @@ export function LogoutButton({
       onClick={() => {
         document.cookie = `${AUTH_COOKIE_NAME}=; path=/; max-age=0; samesite=lax`;
         document.cookie = `${AUTH_PROFILE_NAME_COOKIE}=; path=/; max-age=0; samesite=lax`;
-        router.push("/login");
+        router.push("/booking");
         router.refresh();
       }}
       className={className}

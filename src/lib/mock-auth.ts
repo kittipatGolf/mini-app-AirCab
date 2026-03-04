@@ -1,4 +1,4 @@
-export type AppRole = "user" | "admin";
+export type AppRole = "admin";
 
 export const AUTH_COOKIE_NAME = "aircab_role";
 export const AUTH_PROFILE_NAME_COOKIE = "aircab_profile_name";
@@ -9,12 +9,6 @@ export const MOCK_CREDENTIALS: Array<{
   password: string;
   label: string;
 }> = [
-  {
-    role: "user",
-    username: "user01",
-    password: "user1234",
-    label: "User",
-  },
   {
     role: "admin",
     username: "admin01",
