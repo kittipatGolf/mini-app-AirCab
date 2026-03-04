@@ -5,13 +5,20 @@ import { useRouter } from "next/navigation";
 import { FormSection } from "./FormSection";
 import { StepGuide } from "./StepGuide";
 import {
-  BOOKING_HISTORY_STORAGE_KEY,
   BookingHistoryItem,
   BookingFormData,
   ContactMethod,
   contactMethodLabels,
 } from "./types";
 import { fetchAirlines, fetchAirports } from "../../services/flight-options.service";
+import {
+  CountryOption,
+  getBookingHistoryStorageKey,
+  getClientAuth,
+  getCountryOptions,
+  registerUser,
+  setAuthSession,
+} from "../../lib/mock-user-auth";
 
 const contactMethods: ContactMethod[] = ["whatsapp", "wechat", "line", "email"];
 
@@ -52,15 +59,44 @@ function generateBookingId(now: Date) {
   return `BK-${yy}${mm}${dd}${suffix}`;
 }
 
+type RegisterData = {
+  username: string;
+  password: string;
+  confirmPassword: string;
+  email: string;
+  country: CountryOption;
+  phoneCountryCode: string;
+  phoneNumber: string;
+};
+
+const countryOptions = getCountryOptions();
+const dialCodeOptions = ["+66", "+1", "+44", "+49", "+33", "+81", "+82", "+65", "+61", "+91"];
+
+const initialRegisterData: RegisterData = {
+  username: "",
+  password: "",
+  confirmPassword: "",
+  email: "",
+  country: countryOptions[0],
+  phoneCountryCode: "+66",
+  phoneNumber: "",
+};
+
 export function BookingForm() {
   const router = useRouter();
   const [formData, setFormData] = useState<BookingFormData>(initialData);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [authRole, setAuthRole] = useState<string | null>(null);
+  const [authUsername, setAuthUsername] = useState<string | null>(null);
   const [airports, setAirports] = useState<string[]>([]);
   const [airlines, setAirlines] = useState<string[]>([]);
   const [isLoadingLookup, setIsLoadingLookup] = useState(true);
   const [showAirportSuggestions, setShowAirportSuggestions] = useState(false);
   const [showAirlineSuggestions, setShowAirlineSuggestions] = useState(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [isRegisterConfirmOpen, setIsRegisterConfirmOpen] = useState(false);
+  const [registerData, setRegisterData] = useState<RegisterData>(initialRegisterData);
+  const [registerError, setRegisterError] = useState("");
 
   useEffect(() => {
     let isMounted = true;
@@ -89,6 +125,12 @@ export function BookingForm() {
     };
   }, []);
 
+  useEffect(() => {
+    const auth = getClientAuth();
+    setAuthRole(auth.role);
+    setAuthUsername(auth.username);
+  }, []);
+
   const hasContact = useMemo(
     () =>
       contactMethods.some(
@@ -110,6 +152,18 @@ export function BookingForm() {
         hasContact
     );
   }, [formData, hasContact]);
+
+  const canProceedRegister = useMemo(() => {
+    return Boolean(
+      registerData.username.trim() &&
+        registerData.password &&
+        registerData.confirmPassword &&
+        registerData.email.trim() &&
+        registerData.country &&
+        registerData.phoneCountryCode &&
+        registerData.phoneNumber.trim()
+    );
+  }, [registerData]);
 
   const airportSuggestions = useMemo(
     () => findSuggestions(airports, formData.airport),
@@ -157,13 +211,67 @@ export function BookingForm() {
     }));
   };
 
+  const updateRegisterField = <K extends keyof RegisterData>(
+    key: K,
+    value: RegisterData[K]
+  ) => {
+    setRegisterError("");
+    setRegisterData((prev) => ({ ...prev, [key]: value }));
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!canSubmit) return;
+    const latestRole = getClientAuth().role ?? authRole;
+    if (latestRole !== "user") {
+      setIsRegisterModalOpen(true);
+      return;
+    }
+    setIsSubmitted(true);
+  };
+
+  const handleRegisterContinue = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!canProceedRegister) return;
+    if (registerData.password !== registerData.confirmPassword) {
+      setRegisterError("Password and confirm password do not match.");
+      return;
+    }
+    setIsRegisterConfirmOpen(true);
+  };
+
+  const handleConfirmRegister = () => {
+    const result = registerUser({
+      username: registerData.username,
+      password: registerData.password,
+      email: registerData.email,
+      country: registerData.country,
+      phoneCountryCode: registerData.phoneCountryCode,
+      phoneNumber: registerData.phoneNumber,
+    });
+
+    if (!result.ok) {
+      setRegisterError(result.error);
+      setIsRegisterConfirmOpen(false);
+      return;
+    }
+
+    setAuthSession("user", registerData.username.trim());
+    setAuthRole("user");
+    setAuthUsername(registerData.username.trim());
+    setIsRegisterModalOpen(false);
+    setIsRegisterConfirmOpen(false);
     setIsSubmitted(true);
   };
 
   const handleConfirmBooking = () => {
+    const username = authUsername?.trim();
+    if (!username) {
+      setIsSubmitted(false);
+      setIsRegisterModalOpen(true);
+      return;
+    }
+
     const now = new Date();
     const contacts = contactMethods
       .filter(
@@ -191,11 +299,12 @@ export function BookingForm() {
     };
 
     try {
-      const raw = window.localStorage.getItem(BOOKING_HISTORY_STORAGE_KEY);
+      const storageKey = getBookingHistoryStorageKey(username);
+      const raw = window.localStorage.getItem(storageKey);
       const existing = raw ? (JSON.parse(raw) as BookingHistoryItem[]) : [];
       const safeExisting = Array.isArray(existing) ? existing : [];
       window.localStorage.setItem(
-        BOOKING_HISTORY_STORAGE_KEY,
+        storageKey,
         JSON.stringify([newItem, ...safeExisting])
       );
     } catch {
@@ -508,6 +617,184 @@ export function BookingForm() {
                 className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-base font-semibold text-slate-700 transition hover:bg-slate-100"
               >
                 {"\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {isRegisterModalOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/55 p-4">
+          <div className="w-full max-w-3xl rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl sm:p-5">
+            <h2 className="text-lg font-semibold text-slate-900">Create Account To Continue</h2>
+            <p className="mt-1 text-base text-slate-600">
+              We will create your account and auto-login so you can track booking history.
+            </p>
+
+            <form onSubmit={handleRegisterContinue} className="mt-4 space-y-3">
+              <div className="grid gap-3 md:grid-cols-2">
+                <label className="space-y-1">
+                  <span className="text-base font-medium text-slate-700">Username *</span>
+                  <input
+                    required
+                    value={registerData.username}
+                    onChange={(event) => updateRegisterField("username", event.target.value)}
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 outline-none ring-sky-200 focus:border-sky-500 focus:ring-4"
+                  />
+                </label>
+                <label className="space-y-1">
+                  <span className="text-base font-medium text-slate-700">Email *</span>
+                  <input
+                    required
+                    type="email"
+                    value={registerData.email}
+                    onChange={(event) => updateRegisterField("email", event.target.value)}
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 outline-none ring-sky-200 focus:border-sky-500 focus:ring-4"
+                  />
+                </label>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                <label className="space-y-1">
+                  <span className="text-base font-medium text-slate-700">Password *</span>
+                  <input
+                    required
+                    type="password"
+                    value={registerData.password}
+                    onChange={(event) => updateRegisterField("password", event.target.value)}
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 outline-none ring-sky-200 focus:border-sky-500 focus:ring-4"
+                  />
+                </label>
+                <label className="space-y-1">
+                  <span className="text-base font-medium text-slate-700">Confirm Password *</span>
+                  <input
+                    required
+                    type="password"
+                    value={registerData.confirmPassword}
+                    onChange={(event) =>
+                      updateRegisterField("confirmPassword", event.target.value)
+                    }
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 outline-none ring-sky-200 focus:border-sky-500 focus:ring-4"
+                  />
+                </label>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                <label className="space-y-1">
+                  <span className="text-base font-medium text-slate-700">Country *</span>
+                  <select
+                    value={registerData.country}
+                    onChange={(event) =>
+                      updateRegisterField("country", event.target.value as CountryOption)
+                    }
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 outline-none ring-sky-200 focus:border-sky-500 focus:ring-4"
+                  >
+                    {countryOptions.map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div className="grid grid-cols-3 gap-3">
+                  <label className="space-y-1">
+                    <span className="text-base font-medium text-slate-700">Code *</span>
+                    <select
+                      value={registerData.phoneCountryCode}
+                      onChange={(event) =>
+                        updateRegisterField("phoneCountryCode", event.target.value)
+                      }
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 outline-none ring-sky-200 focus:border-sky-500 focus:ring-4"
+                    >
+                      {dialCodeOptions.map((code) => (
+                        <option key={code} value={code}>
+                          {code}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="col-span-2 space-y-1">
+                    <span className="text-base font-medium text-slate-700">Phone *</span>
+                    <input
+                      required
+                      value={registerData.phoneNumber}
+                      onChange={(event) => updateRegisterField("phoneNumber", event.target.value)}
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 outline-none ring-sky-200 focus:border-sky-500 focus:ring-4"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {registerError ? (
+                <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-base text-rose-700">
+                  {registerError}
+                </p>
+              ) : null}
+
+              <div className="grid gap-2 sm:grid-cols-2">
+                <button
+                  type="submit"
+                  disabled={!canProceedRegister}
+                  className="rounded-xl bg-sky-600 px-4 py-2.5 text-base font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-55"
+                >
+                  Continue
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsRegisterModalOpen(false);
+                    setIsRegisterConfirmOpen(false);
+                  }}
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-base font-semibold text-slate-700 transition hover:bg-slate-100"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
+
+      {isRegisterConfirmOpen ? (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/55 p-4">
+          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl sm:p-5">
+            <h2 className="text-lg font-semibold text-slate-900">Confirm Account Details</h2>
+            <p className="mt-1 text-base text-slate-600">
+              Please review details before creating account and logging in.
+            </p>
+
+            <dl className="mt-4 grid gap-2 text-base">
+              <div className="rounded-lg bg-slate-100 p-2">
+                <dt className="text-slate-600">Username</dt>
+                <dd className="font-medium text-slate-900">{registerData.username}</dd>
+              </div>
+              <div className="rounded-lg bg-slate-100 p-2">
+                <dt className="text-slate-600">Email</dt>
+                <dd className="font-medium text-slate-900">{registerData.email}</dd>
+              </div>
+              <div className="rounded-lg bg-slate-100 p-2">
+                <dt className="text-slate-600">Country / Mobile</dt>
+                <dd className="font-medium text-slate-900">
+                  {registerData.country} ({registerData.phoneCountryCode}
+                  {registerData.phoneNumber})
+                </dd>
+              </div>
+            </dl>
+
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={handleConfirmRegister}
+                className="rounded-xl bg-gradient-to-r from-sky-600 to-cyan-600 px-4 py-2.5 text-base font-semibold text-white transition hover:brightness-110"
+              >
+                Create Account & Continue
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsRegisterConfirmOpen(false)}
+                className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-base font-semibold text-slate-700 transition hover:bg-slate-100"
+              >
+                Back
               </button>
             </div>
           </div>

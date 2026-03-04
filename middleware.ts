@@ -12,14 +12,15 @@ export function middleware(request: NextRequest) {
   const role = request.cookies.get(AUTH_COOKIE_NAME)?.value;
 
   const isLoginPath = pathname.startsWith("/login");
+  const isRegisterPath = pathname.startsWith("/register");
   const isAdminPath = pathname.startsWith("/admin");
-  const isUserPath = pathname.startsWith("/booking") || pathname.startsWith("/profile");
+  const isUserProfilePath = pathname.startsWith("/profile");
 
   if (pathname === "/") {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL("/booking", request.url));
   }
 
-  if (isLoginPath) {
+  if (isLoginPath || isRegisterPath) {
     if (role === "admin") {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
@@ -33,7 +34,7 @@ export function middleware(request: NextRequest) {
     return toLogin(request);
   }
 
-  if (isUserPath && role !== "user") {
+  if (isUserProfilePath && role !== "user") {
     return toLogin(request);
   }
 

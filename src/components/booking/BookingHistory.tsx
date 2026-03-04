@@ -1,7 +1,8 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { BOOKING_HISTORY_STORAGE_KEY, BookingHistoryItem } from "./types";
+import { BookingHistoryItem } from "./types";
+import { getBookingHistoryStorageKey, getClientAuth } from "../../lib/mock-user-auth";
 
 function statusClass(status: BookingHistoryItem["status"]) {
   if (status === "Completed") return "bg-emerald-100 text-emerald-800";
@@ -11,9 +12,12 @@ function statusClass(status: BookingHistoryItem["status"]) {
 
 function readStoredHistory(): BookingHistoryItem[] {
   if (typeof window === "undefined") return [];
+  const auth = getClientAuth();
+  if (!auth.username) return [];
 
   try {
-    const raw = window.localStorage.getItem(BOOKING_HISTORY_STORAGE_KEY);
+    const storageKey = getBookingHistoryStorageKey(auth.username);
+    const raw = window.localStorage.getItem(storageKey);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as BookingHistoryItem[];
     return Array.isArray(parsed) ? parsed : [];
