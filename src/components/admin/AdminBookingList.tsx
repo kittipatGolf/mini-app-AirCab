@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { fetchAdminBookings } from "../../services/admin-booking.service";
 import { AdminBookingItem } from "./types";
@@ -156,14 +157,25 @@ export function AdminBookingList() {
               </div>
 
               <div className="border-t border-slate-200/90 px-4 py-3 sm:px-5">
-                <button
-                  type="button"
-                  disabled={isAccepted}
-                  onClick={() => setProgress(markOrderAccepted(item.id))}
-                  className="inline-flex rounded-xl bg-emerald-600 px-4 py-2.5 text-base font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:bg-emerald-200 disabled:text-emerald-700"
-                >
-                  {isAccepted ? "Accepted" : "Accept Order"}
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={isAccepted}
+                    onClick={() => setProgress(markOrderAccepted(item.id))}
+                    className="inline-flex rounded-xl bg-emerald-600 px-4 py-2.5 text-base font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:bg-emerald-200 disabled:text-emerald-700"
+                  >
+                    {isAccepted ? "Accepted" : "Accept Order"}
+                  </button>
+
+                  {isAccepted ? (
+                    <Link
+                      href={`/admin/bookings/${item.id}`}
+                      className="inline-flex rounded-xl bg-slate-900 px-4 py-2.5 text-base font-semibold text-white transition hover:brightness-110"
+                    >
+                      View
+                    </Link>
+                  ) : null}
+                </div>
               </div>
             </article>
           );

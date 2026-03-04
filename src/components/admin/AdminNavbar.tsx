@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 import { LogoutButton } from "../auth/LogoutButton";
 
 type AdminNavbarProps = {
-  active: "list" | "history";
   profileName?: string;
 };
 
@@ -13,7 +12,7 @@ function getInitial(name: string) {
   return name.trim().charAt(0).toUpperCase() || "A";
 }
 
-export function AdminNavbar({ active, profileName = "Admin" }: AdminNavbarProps) {
+export function AdminNavbar({ profileName = "Admin" }: AdminNavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
 
@@ -36,24 +35,9 @@ export function AdminNavbar({ active, profileName = "Admin" }: AdminNavbarProps)
           <Link
             href="/admin"
             onClick={() => setIsMenuOpen(false)}
-            className={`rounded-xl px-3 py-2 text-center text-base font-medium transition ${
-              active === "list"
-                ? "bg-sky-600 text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-            }`}
+            className="rounded-xl bg-sky-600 px-3 py-2 text-center text-base font-medium text-white transition hover:brightness-110"
           >
             Booking List
-          </Link>
-          <Link
-            href="/admin/history"
-            onClick={() => setIsMenuOpen(false)}
-            className={`rounded-xl px-3 py-2 text-center text-base font-medium transition ${
-              active === "history"
-                ? "bg-sky-600 text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-            }`}
-          >
-            History
           </Link>
         </div>
 
