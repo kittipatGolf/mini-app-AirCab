@@ -97,7 +97,7 @@ export function AdminHistoryList() {
 
               <div className="mt-3">
                 <Link
-                  href={`/admin/bookings/${entry.orderId}`}
+                  href={`/admin/bookings/${entry.orderId}?from=history`}
                   className="inline-flex rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:brightness-110"
                 >
                   View booking

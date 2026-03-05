@@ -12,6 +12,7 @@ import { AdminOrderStatusControl } from "./AdminOrderStatusControl";
 
 type AdminBookingDetailProps = {
   bookingId: string;
+  isFromHistory?: boolean;
 };
 
 function contactLink(contact: AdminBookingContact) {
@@ -39,7 +40,10 @@ function paymentStatusClass(status: AdminBookingItem["paymentStatus"]) {
     : "border-rose-200 bg-rose-100 text-rose-800";
 }
 
-export function AdminBookingDetail({ bookingId }: AdminBookingDetailProps) {
+export function AdminBookingDetail({
+  bookingId,
+  isFromHistory = false,
+}: AdminBookingDetailProps) {
   const [item, setItem] = useState<AdminBookingItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState<AdminOrderProgress | null>(null);
@@ -183,31 +187,35 @@ export function AdminBookingDetail({ bookingId }: AdminBookingDetailProps) {
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 p-3">
-        <h2 className="text-lg font-semibold text-slate-900">Upload Payment Slip</h2>
-        <p className="mt-1 text-sm text-slate-600">
-          Complete Job will be enabled only after a payment image is uploaded.
-        </p>
+      {!isFromHistory ? (
+        <>
+          <div className="rounded-xl border border-slate-200 p-3">
+            <h2 className="text-lg font-semibold text-slate-900">Upload Payment Slip</h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Complete Job will be enabled only after a payment image is uploaded.
+            </p>
 
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(event) => setReceiptFile(event.target.files?.[0] ?? null)}
-          className="mt-2 block w-full text-sm text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-900 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:brightness-110"
-        />
-      </div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(event) => setReceiptFile(event.target.files?.[0] ?? null)}
+              className="mt-2 block w-full text-sm text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-900 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:brightness-110"
+            />
+          </div>
 
-      <AdminOrderStatusControl
-        bookingId={item.id}
-        isAccepted={Boolean(progress)}
-        hasPaymentUpload={Boolean(receiptFile)}
-        onProgressChange={(nextProgress) => {
-          setProgress(nextProgress);
-          if (nextProgress) {
-            setReceiptFile(null);
-          }
-        }}
-      />
+          <AdminOrderStatusControl
+            bookingId={item.id}
+            isAccepted={Boolean(progress)}
+            hasPaymentUpload={Boolean(receiptFile)}
+            onProgressChange={(nextProgress) => {
+              setProgress(nextProgress);
+              if (nextProgress) {
+                setReceiptFile(null);
+              }
+            }}
+          />
+        </>
+      ) : null}
     </section>
   );
 }
