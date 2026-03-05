@@ -8,6 +8,7 @@ type AdminOrderStatusControlProps = {
   isAccepted: boolean;
   hasPaymentUpload: boolean;
   onProgressChange: (next: AdminOrderProgress | null) => void;
+  embedded?: boolean;
 };
 
 export function AdminOrderStatusControl({
@@ -15,6 +16,7 @@ export function AdminOrderStatusControl({
   isAccepted,
   hasPaymentUpload,
   onProgressChange,
+  embedded = false,
 }: AdminOrderStatusControlProps) {
   const [note, setNote] = useState("");
   const [isRejectConfirmOpen, setIsRejectConfirmOpen] = useState(false);
@@ -44,7 +46,13 @@ export function AdminOrderStatusControl({
   };
 
   return (
-    <div className="relative rounded-xl border border-slate-200 p-3">
+    <div
+      className={
+        embedded
+          ? "relative border-t border-slate-200 pt-3"
+          : "relative rounded-xl border border-slate-200 p-3"
+      }
+    >
       <h2 className="text-lg font-semibold text-slate-900">Order Status Action</h2>
       <p className="mt-1 text-sm text-slate-600">
         Complete Job is available after uploading payment slip. Reject will release this order so
