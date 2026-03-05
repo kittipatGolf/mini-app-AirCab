@@ -1,7 +1,7 @@
-import { AdminBookingHistory } from "../../../components/admin/AdminBookingHistory";
+import { cookies } from "next/headers";
+import { AdminHistoryList } from "../../../components/admin/AdminHistoryList";
 import { AdminNavbar } from "../../../components/admin/AdminNavbar";
 import { AUTH_PROFILE_NAME_COOKIE } from "../../../lib/mock-auth";
-import { cookies } from "next/headers";
 
 export default async function AdminHistoryPage() {
   const cookieStore = await cookies();
@@ -12,9 +12,10 @@ export default async function AdminHistoryPage() {
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
       <div className="mx-auto w-full max-w-6xl">
-        <AdminNavbar active="history" profileName={profileName} />
-        <AdminBookingHistory />
+        <AdminNavbar profileName={profileName} />
+        <AdminHistoryList />
       </div>
     </main>
   );
 }
+
