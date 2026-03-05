@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { LogoutButton } from "../auth/LogoutButton";
 
 type AdminNavbarProps = {
-  active: "list" | "history";
   profileName?: string;
 };
 
@@ -13,9 +13,19 @@ function getInitial(name: string) {
   return name.trim().charAt(0).toUpperCase() || "A";
 }
 
-export function AdminNavbar({ active, profileName = "Admin" }: AdminNavbarProps) {
+export function AdminNavbar({ profileName = "Admin" }: AdminNavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname();
+
+  const bookingClass =
+    pathname === "/admin"
+      ? "rounded-xl bg-sky-600 px-3 py-2 text-center text-base font-medium text-white transition hover:brightness-110"
+      : "rounded-xl bg-slate-100 px-3 py-2 text-center text-base font-medium text-slate-700 transition hover:bg-slate-200";
+  const historyClass =
+    pathname === "/admin/history"
+      ? "rounded-xl bg-sky-600 px-3 py-2 text-center text-base font-medium text-white transition hover:brightness-110"
+      : "rounded-xl bg-slate-100 px-3 py-2 text-center text-base font-medium text-slate-700 transition hover:bg-slate-200";
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -36,22 +46,14 @@ export function AdminNavbar({ active, profileName = "Admin" }: AdminNavbarProps)
           <Link
             href="/admin"
             onClick={() => setIsMenuOpen(false)}
-            className={`rounded-xl px-3 py-2 text-center text-base font-medium transition ${
-              active === "list"
-                ? "bg-sky-600 text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-            }`}
+            className={bookingClass}
           >
             Booking List
           </Link>
           <Link
             href="/admin/history"
             onClick={() => setIsMenuOpen(false)}
-            className={`rounded-xl px-3 py-2 text-center text-base font-medium transition ${
-              active === "history"
-                ? "bg-sky-600 text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-            }`}
+            className={historyClass}
           >
             History
           </Link>
