@@ -83,14 +83,7 @@ export function AppNavbar({ isAdmin = false, profileName = "admin01" }: AppNavba
               </div>
             ) : null}
           </div>
-        ) : (
-          <Link
-            href="/login"
-            className="shrink-0 rounded-xl bg-slate-900 px-5 py-2.5 text-base font-semibold text-white transition hover:brightness-110"
-          >
-            Admin Login
-          </Link>
-        )}
+        ) : null}
       </div>
     </header>
   );

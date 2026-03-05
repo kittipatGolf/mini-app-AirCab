@@ -86,12 +86,9 @@ export function AdminHistoryList() {
                 </span>
               </div>
 
-              <div className="mt-2 grid gap-1 text-sm text-slate-700 sm:grid-cols-2">
+              <div className="mt-2 text-sm text-slate-700">
                 <p>
                   Updated: <span className="font-medium">{new Date(entry.updatedAt).toLocaleString()}</span>
-                </p>
-                <p>
-                  Note: <span className="font-medium">{entry.note || "-"}</span>
                 </p>
               </div>
 
