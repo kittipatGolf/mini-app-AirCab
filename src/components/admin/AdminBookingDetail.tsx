@@ -94,7 +94,7 @@ export function AdminBookingDetail({
     <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">Booking Detail</h1>
+          <h1 className="text-xl font-semibold text-slate-900">รายละเอียดการจอง</h1>
           <p className="text-base text-slate-600">ID: {item.id}</p>
         </div>
         <Link
@@ -121,7 +121,7 @@ export function AdminBookingDetail({
       </div>
 
       <div className="rounded-xl border border-slate-200 p-3">
-        <h2 className="text-lg font-semibold text-slate-900">Accepted Progress</h2>
+        <h2 className="text-lg font-semibold text-slate-900">ความคืบหน้าการรับงาน</h2>
         {progress ? (
           <div className="mt-2 grid gap-2 text-base text-slate-700 sm:grid-cols-2">
             <p>
@@ -141,13 +141,13 @@ export function AdminBookingDetail({
           </div>
         ) : (
           <p className="mt-2 text-base text-slate-600">
-            This order is not accepted yet. Go back to list and click Accept Order first.
+            งานนี้ยังไม่ได้รับ กรุณากลับไปที่รายการและกดรับงานก่อน
           </p>
         )}
       </div>
 
       <div className="rounded-xl border border-slate-200 p-3">
-        <h2 className="text-lg font-semibold text-slate-900">Trip Information</h2>
+        <h2 className="text-lg font-semibold text-slate-900">ข้อมูลการเดินทาง</h2>
         <div className="mt-2 grid gap-1 text-base text-slate-700 md:grid-cols-2">
           <p>Airport: {item.airport}</p>
           <p>Airline: {item.airline || "-"}</p>
@@ -159,7 +159,7 @@ export function AdminBookingDetail({
       </div>
 
       <div className="rounded-xl border border-slate-200 p-3">
-        <h2 className="text-lg font-semibold text-slate-900">Contact Channels (Clickable)</h2>
+        <h2 className="text-lg font-semibold text-slate-900">ช่องทางติดต่อ</h2>
         <p className="mt-1 text-sm text-slate-600">Click a contact card to open chat, call, or email.</p>
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           {item.contacts.map((contact) => (
