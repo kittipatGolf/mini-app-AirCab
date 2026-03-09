@@ -91,7 +91,7 @@ export function AdminOrderStatusControl({
 
         {!isAccepted ? (
           <p className="self-center text-sm text-slate-600">
-            This order has not been accepted yet. Please accept from booking list first.
+            งานนี้ยังไม่ได้รับ กรุณารับงานจากหน้ารายการก่อน
           </p>
         ) : null}
         {isAccepted && !hasPaymentUpload ? (
