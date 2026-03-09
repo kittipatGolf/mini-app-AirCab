@@ -36,7 +36,7 @@ export function AdminBookingList() {
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState<Record<string, AdminOrderProgress>>({});
   const [paymentSlipUpload, setPaymentSlipUpload] = useState<Record<string, File | null>>({});
-  const [rejectedOrderIds, setRejectedOrderIds] = useState<Set<string>>(new Set());
+  const [hiddenOrderIds, setHiddenOrderIds] = useState<Set<string>>(new Set());
   const [rejectConfirmOrderId, setRejectConfirmOrderId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,10 +49,8 @@ export function AdminBookingList() {
         setItems(data.items);
         setProgress(getAdminOrderProgress());
         const history = getAdminOrderHistory();
-        const rejectedIds = new Set(
-          history.filter((entry) => entry.status === "rejected").map((entry) => entry.orderId)
-        );
-        setRejectedOrderIds(rejectedIds);
+        const historyIds = new Set(history.map((entry) => entry.orderId));
+        setHiddenOrderIds(historyIds);
       } finally {
         if (mounted) setIsLoading(false);
       }
@@ -68,9 +66,9 @@ export function AdminBookingList() {
   const sortedItems = useMemo(
     () =>
       [...items]
-        .filter((item) => !rejectedOrderIds.has(item.id))
+        .filter((item) => !hiddenOrderIds.has(item.id))
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-    [items, rejectedOrderIds]
+    [items, hiddenOrderIds]
   );
 
   const applyReject = (orderId: string) => {
@@ -88,7 +86,7 @@ export function AdminBookingList() {
       ...prev,
       [orderId]: null,
     }));
-    setRejectedOrderIds((prev) => {
+    setHiddenOrderIds((prev) => {
       const next = new Set(prev);
       next.add(orderId);
       return next;
@@ -254,6 +252,11 @@ export function AdminBookingList() {
                             ...prev,
                             [item.id]: nextProgress,
                           }));
+                          setHiddenOrderIds((prev) => {
+                            const next = new Set(prev);
+                            next.add(item.id);
+                            return next;
+                          });
                           setPaymentSlipUpload((prev) => ({
                             ...prev,
                             [item.id]: null,
